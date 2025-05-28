@@ -1,0 +1,40 @@
+Node not ready troubleshooting.
+
+in kubernetes each node periodically sends heartbeat to the control plane to report its status. 
+if the control plane does not hear from node or detects issue it marks the node as NotReady. 
+this status disrupts workload because the scheduler will not place pods on nodes marked NotReady.
+
+1) kubectl describe node <node-name>
+
+Ready → True/False/Unknown
+
+MemoryPressure
+DiskPressure
+PIDPressure
+NetworkUnavailable
+
+If Ready = False or Unknown, it becomes NotReady.
+
+2) Check logs for kubelet Issues
+
+journalctl -u kubelet -xe
+
+
+
+Below is the main cause-
+1) kubelet service and container runtime is not running.
+2) Node cannot reach to API server due to network issue.
+3) disk is full- kubelet wont schedule more pods.
+4) because of memory pressure nodes will evict pods and go NotReady.
+5) API server unreachable- control plane connot communicate with node,
+
+
+"In Kubernetes, a node marked NotReady indicates that it is unhealthy or unreachable by the control plane. 
+This disrupts workload scheduling since Kubernetes won't assign new pods to it. 
+I've encountered this before due to disk pressure, where the kubelet marked the node NotReady.
+ I SSHed into the node, checked df -h, cleaned up unused Docker images, and restarted the kubelet. 
+ I always start by running kubectl describe node, check the conditions and kubelet logs, and troubleshoot from there. 
+ Understanding the underlying reason — whether it's disk, network, kubelet, or container runtime — is key to resolving this."
+
+docker system prune -a
+sudo systemctl restart kubelet

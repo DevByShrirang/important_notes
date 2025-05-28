@@ -1,0 +1,20 @@
+in kubernetes service exposes the set of pods via stable endpoint(  ip+port)
+service uses selectors to group pods and kube proxy to forward traffic to them
+kubeproxy forwards the traffic only to pods that are in both
+Ruuning state
+Ready
+
+What could go wrong?
+If no healthy Pods are available, the Service has no endpoints to route traffic.
+
+Causes could be:
+
+Wrong label selectors in the Service
+
+Pods not in Ready state
+
+Pods stuck due to issues like:
+
+Image pull errors
+
+CrashLoopBackOff    

@@ -1,0 +1,48 @@
+---
+- name: install package
+  hosts: servers
+  become: yes
+
+  tasks:
+  - name: install directory
+    file:                              #module
+     path: /home/ubuntu/shrirang
+     state: directory
+     mode: '0755'
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

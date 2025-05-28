@@ -1,0 +1,141 @@
+Troubleshootting issues in Docker-
+
+
+🔹 Question 1: What does the 'Container is Unhealthy' status indicate, and how do you troubleshoot it?
+
+Ans:
+- The unhealthy status means that health check command specified in the dockerfile is failing
+- inspect logs docker logs container_id
+- review health check command that it is correctly implemented and accessible within the container
+- container dependencies varify that all dependencies require for all health chck are available and functioning
+
+🔹 Question 2: What causes the 'Docker Cannot Connect to the Docker Daemon' error, and how do you resolve it?
+
+Ans:
+- This error occurs when docker client cannot communicate with docker daemon
+- check the docker docker daemon (systemctl status docker)
+- Permission issue Ensure your user is in the docker group by running sudo usermod -aG docker $USER
+- Environment variable Ensure the DOCKER_HOST environment variable is correctly set, especially in remote Docker setups
+
+🔹 Question 3: How do you fix the 'Docker Image Pull Backoff' error?
+
+Ans:
+- This error occurs when Docker fails to pull the specified image.
+- check the image name/tag 
+- Network issue
+- Registry crediential while pulling the image from docker registry
+
+🔹 Question 4: What is the cause of the 'No space left on device' error in Docker, and how do you resolve it?
+
+Ans:
+- This error occurs when host system runs out of storage space
+- Clean up unused container/images (docker system prune)
+- check Disk usage use df- h to identify disk usage and free up the space
+- Increase Disk size expand the disk size on the host machine,if possible 
+
+🔹 Question 5: How do you resolve a 'Permission Denied' error when accessing files inside a Docker container?
+
+Ans:
+-This error typically occurs due to file ownership or permission issue
+- Run container as Root try running the conatiner with root privileges using docker run -- user root <image_name>
+- Change the file permission by chmod or chown within the container
+- mount option when mounting volumes ensure that the correct permission are set the host directory
+
+
+🔹 Question 6: How do you fix the 'Docker Bind for 0.0.0.0:80 -failed port is already allocated' error?
+
+Ans:
+- This error occurs when the specified port is already in use
+- stop conflicting containers identify and stop the container using the port with docker ps and docker stop <container_id>
+- change Host port modify the port mapping to use a differenthost port e.g. docker run -p 8080:80 <image_name>
+- Release the port use sudo lsof -i:80 to find and stop any process occupying the port 
+
+🔹 Question 7: How do you resolve the 'Docker Cannot Start Service- Mounts Denied' error?
+
+Ans:
+- This typically usually occurs due to incorrect or restricted mount point 
+- verify mount path ensure the path you are trying to mount exists and has the correct permission
+- Use valid bind mounts ensure that the bind mount syntax is correct e.g. docker run -v /host/path:/container/path <image_name>
+
+🔹 Question 8: What causes the 'Docker- connection reset by peer' error, and how do you troubleshoot it?
+
+Ans:
+- This error often occurs due to network connectivity issue between docker container or docker docker daemon and external service
+- Check docker network settings are correctly configured
+- Firewall Rules verify that firewalls or security gruops are not blocking traffic
+- container resource limit ensure container have sufficient resource and are not being throttled or killed
+
+🔹 Question 9: How do you resolve the 'Docker- Layer already exists' error during a docker build?
+
+Ans:
+- This error can occur when docker tries to reuse an existing layer but encounter a conflict
+- clear build cache: use "docker builder prune or docker build --no-cache" to avoid reusing cached layer
+- inspect dockerfile ensure that the dockerfile commands are correctly defined and that changes are necessary to create new layers.
+- Rebuild image try rebuilding the image from scratch to resolve any cache issues.
+
+🔹 Question 10: What causes the 'Cannot Delete Docker Network- Network has active endpoints' error, and how do you fix it?
+
+Ans:
+- This error occurs when you try to delete a network that still has active containers connected
+- List Active containers : Use "docker network inspect <network_name> to see which container are still using the network
+- Disconnect Container: Disconnect the containers from the network using "docker network disconnect <network_name><container_id>
+- stop/remove containers: stop or remove the containers if they are no longer needed, then retry deleting the network.
+
+🔹 Question 11: How do you resolve a 'Docker- Unknown instruction in Dockerfile' error?
+
+Ans:
+- This error occurs when the Dockerfile contains an invalid or misspelled instruction
+- Check instruction syntax ensure that all instruction in the docker file are spelled correctly and in uppercase
+- Dockerfile version compatibility ensure the dockerfile syntax is compatible with docker version 
+- consult docker documentation as reference.
+
+🔹 Question 12: What is the 'Docker- Cannot kill container' error, and how do you resolve it?
+
+Ans:
+- This error occurs when docker cannot stop or remove a container
+- Force stop: use "docker kill <container_id> to forcefully stop
+- Remove the force : use "docker rm -f <container_id>" to forcefully remove the container
+- Check container state : Ensure the container is not in paused state before trying to kill it 
+
+
+🔹 Question 13: How do you resolve the 'Docker- invalid reference format' error?
+
+Ans: 
+-when the image name or repo format is incorect also 
+-try to check the image name and tag in right format then also check the repository name and tag as well 
+-remove invalid character in image i.e. any special character during image creation
+-repo name should be as per docker naming convention 
+
+🔹 Question 14: What causes the 'Docker- Cannot connect to Docker Daemon at unix:///var/run/docker.sock' error, and how do you fix it?
+
+Ans:
+- Docker client is not able to connect with  docker daemon either the daemon is not running or user running the docker command
+  does not have permission to access the docker socket file. /var/run/docker.sock
+- check the the status of the docker by using docker status command
+- also try to see the permission which allocate /var/run/docker.sock has correct permission
+- sudo chmod 666 /var/run/docker.sock
+- add your user to docker group sudo usermod -aG docker $USER 
+
+🔹 Question 15: How do you troubleshoot the 'Docker- Container Exited with Code 137' error?
+
+Ans:
+- it indicate that the container was terminated due to an out-of-memory condition or manually killed
+- Increase the memory limit adjust the memory limits for the container using --memory and --memory-swap flags
+- monitor the container resource usage with docker "docker stats" and ensure its not exceeding available memory
+- Optimize Application - Review and optimize the application running inside of the container to reduce memory consumption(multi-stage-build).
+
+16) What will you do when build fails at certein steps.
+- i first look closely to the terminal output of docker build command.  docker build usually points to exact line in the dockerfine where the error occured.
+if the build fails at COPY package.json . then i immediately check does package.json atually exists in the same directory where i am running the command.
+If the failure is during RUN npm install that suggests maybe i used wrong base image.so i will confirm FROM instruction has the right image.
+
+17 ) Docker Compose Service Can’t Connect to Another.
+    In docker compose all services are using same default network.
+    in docker services are communicated with each other using service name as hostname.so the first thing i will check whether the services trying to connect 
+    using the same hostname.
+    web service ---DB service using localhost in the cconnection string-wrong
+    web service ---DB service db:5432 -correct
+    db container starts running doesnt means its ready to accept coonection but web server running and trying to connect db server.but db isnt fully
+   initialized yet. to handle that i either use tools like wait-for-it.sh to delay my app start until the database port is open.
+   i will check dockers healthchecks combined with depends_on .
+

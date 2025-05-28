@@ -1,0 +1,17 @@
+We need to change port for cart product user front-end
+FROM node:18
+
+WORKDIR /app
+COPY cart/package*.json ./
+RUN npm install
+COPY . .
+
+EXPOSE 9003
+CMD ["node", "server.js"]
+
+**************************************************************
+for product -9000
+user -9001
+
+
+

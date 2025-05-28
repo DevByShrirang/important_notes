@@ -1,0 +1,2 @@
+pipeline_version=1.0.0
+AWS_SECRET_KEY=hardcoded-secret

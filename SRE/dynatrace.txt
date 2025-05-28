@@ -1,0 +1,119 @@
+Dynatrace 
+observability platform
+
+observability
+===========================
+metrics + Trace(APM +Syn +RUM)  +  lOGS
+
+
+
+Metrics - to monitor system and infrastructure performance (cpu, memory, resonse time), infrastructure monitoring like linux
+          windows apache mysql tomcat this are the metrics you want to get it.
+Traces - is used to understand application behaviour
+     APM-appplication performence monitoring  for backend services
+     Syn- synthetic monitoring to simulate user journeys and test availability
+     RUM- real user monitoring -to capture actual user experience.
+
+Logs- To provide detailed context for events , errors ,and anomalies.
+
+suppose real user login to application and connected and use it and we want to record response time experiences so for code level
+traces APM will help you.
+Network level traces synthetic will help you
+if you want to captures users sessions for the analysis. from country users are coming. what is the operating system
+what the browsers they are using . how much time they have spending. on wchich pages they have spending all these information
+getting through RUM.
+
+Logs - windows logs , linux logs apache logs.
+
+We collect above data and with using this data we set alert and dashboard.
+
+from infrastructure monitoring we get it Metrics 
+from application and microservices we get APM
+from application security and digital experience we get RUM.
+
+**********************************
+i install oneagent script provided in dynatrace dashboard. i run it as root
+i used flags like --set-monitoring-mode=fullstack  for full stack visibility. monitor infrastructure + application + services
+capture deep telemetry (trace log metrics ) for full observability.
+and --set-app-log-content-access=true  this allow agents to collect application logs content for full monitoring and troubleshooting .
+helps in ctreating log -based metrics and alerts in dynatrace.
+once installation done the OneAgent auto-discover services, collecting , logs metrics traces and report them to DynaTrace cluster
+for visualization and alerting.
+
+when we install oneAgent multiple background 
+
+Installation :-
+1) Dynatrace installation --
+Installation path- Path: /var/log/dynatrace/oneagent/installer/installation_984.log
+this is the detailed log file of oneagent installation process. 
+2) Installation location- /opt/dynatrace/oneagent
+on this path all oneagent files are installed it includes binaries , configuration files. this is heart of agent.
+
+3) Kernel Dump hook (Crash handling) -
+Line: Adding entry with oneagentdumpproc to /etc/sysctl.conf
+
+this entry modify core dump setting so that dynatrace can collect crash dumps from monitored process. its part of 
+deep monitoring and helps in application-level dignostics.
+
+4) oneAgent Watchdog -
+Binary: /opt/dynatrace/oneagent/agent/lib64/oneagentwatchdog
+Config: /opt/dynatrace/oneagent/agent/conf/watchdog.conf
+
+oneAgentWatchdog is critical process. it ensures other agent components are always running. if any monitored process fails 
+or becomes unresponsive the watchdog restart them . it read configuration from watchdog.conf file.
+
+5) Agent Runtime logs:-
+Path: /opt/dynatrace/oneagent/os
+
+This folder stores OneAgent runtime logs. it includes logs from the agents communication with the DynaTrace server ,
+data collection process and auto injection diagnostics. its my first stop when troubleshooting performance monitoring issue.
+
+*********************************************************
+
+Dynatrace showning below information in overview.
+up time of server.
+if server launched using aws cloud then its also showing monitoring type and data center name.
+showing availability , logs  eventsn , SLOs
+Showing connections 
+Network analysis 
+Disk analysis.
+
+Host overview - Host overview page showing information of system metrics , network stats , disk usage , process level data , 
+and health checks all in one place.
+
+1) Monitoring type & availability-
+Monitoring type full stack - one agent tracking everything infra metrics , os process , service , container , logs
+availability - percentage of time where host is monitored by OneAgent.
+up since - shows when the host was last rebooted or when the agent came online.
+
+2 ) CPU usage -- shows user ,system , iowait , and idle time.
+helps identify CPU bottleneck and inefficients applications.
+
+
+3) Memory used - 
+used memory - active application memory
+Reclaimable memory - can be realeased by kernal when needed.
+
+Memory pattern helps in tunning applications and predicting OOM (out of memory) issues . Reclaimable memory gives us buffer
+insights under pressure.
+
+4) Network trraffic-
+shows real time bandwidth in and out.
+with the help of network traffic we monitor throughput per interface to detect anomalies like sudden spikes (possible DDoS) or 
+drops (Service crash or misconfig)
+
+5) Disk analysis -
+disk analysis showing total disk space , used space and available disk space 
+
+-******************
+Dynatrace doing below all things-
+
+infrastructure monitoring 
+performance monitoring
+log monitoring 
+synthetic Monitoring
+wrong monitoring
+network monitoring
+security monitoring.
+
+we store the data and on top of that we can do analysis alerting , slo tracing and everything.

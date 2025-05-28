@@ -1,0 +1,64 @@
+1) Moving Uncommitted Changes (Using git stash)-
+suppose when we made changes on main branch instead of dev without commit so to do correction.
+git stash -- on main branch
+git checkout developer - on developer
+git stash pop and git add then git commit
+
+2) How to handle sensitive data like credintials. .env file accidently pushed to github
+Ans-- first we need to remove the sensitive file from tracking git rm --cached and add it to .gitignore. then i would rewrite git history using git filter-branch to remove that file from all previous commits.
+
+git diff --I use git diff daily to verify code changes before committing, especially to catch accidental or debug lines. I also use git diff --cached to review staged changes before pushing. In CI pipelines, I’ve used git diff --name-only HEAD~1 HEAD to detect which files changed between commits and trigger jobs conditionally — like skipping builds when only README files change
+************************
+when we modify any file or any changes in remote repository we need to do below process to make in sync both local and remote repository.
+1) git fetch - git fetches latest commits from remote(origin) but does not change your local working branch. local reponow knows about remote updates, but has not applied them yet.
+2) git merge origin/main - merge the fetched remote branch (origin/main) into your local main branch.
+
+OR we can use directly git pull
+git pull = git fetch + git merge.
+
+
+
+
+
+Command	Meaning	Use Case / Example
+git init	Initializes a new Git repository	Start tracking version control in a project folder
+git clone <repo_url>	Clones a remote repo to your local machine	Get a copy of the team repo to work on
+git status	Shows status of current working directory	Check what's staged, changed, or untracked
+git add <file>	Stages changes for commit	Prepare modified files for the next commit
+git add .	Stages all changes	Stage everything in the current directory
+git commit -m "message"	Saves staged changes with a message	Record a checkpoint in the project
+git log	Shows commit history	Review previous commits for audit or rollback
+git diff	Shows changes not yet staged	See what you modified before staging
+git diff --staged	Show changes staged for commit	Review what's ready to commit
+git push origin <branch>	Pushes local commits to remote repo	Share your changes with team
+git pull	Fetches + merges changes from remote	Sync with the latest remote changes
+git fetch	Gets changes from remote without merging	Inspect updates before merging
+git merge <branch>	Merges changes from another branch	Combine features from dev to main
+git branch	Lists all branches	See current and other branches
+git branch <name>	Creates a new branch	Start working on a new feature
+git checkout <branch>	Switches to another branch	Move between branches
+git checkout -b <branch>	Creates and switches to a new branch	Create a new feature and work on it
+git stash	Temporarily saves changes	Save your uncommitted work before switching
+git stash pop	Re-applies stashed changes	Restore previous work after branch switch
+git remote -v	Shows remote repo URLs	Confirm where you're pushing/pulling from
+git remote add origin <url>	Adds a new remote repo	Connect local repo to GitHub/GitLab
+git reset --hard HEAD	Reverts all changes to last commit	Discard all local uncommitted changes
+git reset <file>	Unstages a file	Fix accidental git add before committing
+git rm <file>	Deletes a file from repo	Remove tracked files from project
+git revert <commit>	Creates a new commit that undoes previous one	Safe way to undo changes
+git tag <v1.0>	Tags a specific commit	Mark releases (e.g., v1.0.0)
+git rebase <branch>	Move current branch commits on top of another	Clean history before merging
+git cherry-pick <commit>	Apply a specific commit from another branch	Pick only needed changes from another branch
+git blame <file>	Shows who changed each line	Useful for tracking down bugs
+git clean -fd	Removes untracked files/folders	Clean up workspace before build
+git config --global user.name/email	Set Git identity	Set once for your local machine
+git show <commit>	Show detailed info about a commit	Inspect changes introduced in a commit
+git archive	Export project as zip/tar	Create release packages
+
+ 
+
+
+
+
+
+

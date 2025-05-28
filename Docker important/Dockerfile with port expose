@@ -1,0 +1,8 @@
+FROM python
+
+WORKDIR /code
+
+COPY app.py /code/
+
+ADD https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/120px-Placeholder_view_vector.svg.png /code/test-image.png
+EXPOSE 5000

@@ -1,0 +1,14 @@
+---
+- name: install package
+  hosts: servers
+  become: yes
+
+  tasks:
+  - name: install maven
+    apt:                           #mudule
+     name: maven
+     state: present
+     update_cache: yes 
+
+
+

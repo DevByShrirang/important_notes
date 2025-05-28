@@ -1,0 +1,12 @@
+---
+ - name:
+   hosts:
+   become: yes
+
+
+   tasks:
+    - name:
+      user:                           #module
+       name: devops
+       state: present 
+       groups: sudo

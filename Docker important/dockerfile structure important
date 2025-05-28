@@ -1,0 +1,7 @@
+In dockerfile we used package.json file in the docker build process to install depedencies.
+COPY package*.json ./ - Copies both package.json and package-lock.json into the container.
+RUN npm install  - uses those files to install dependencies.
+COPY .. - then copies the rest of your app (like server.js , routes etc)
+
+Backend- db- db_conn.js - This file setup database connectivity for node.js backend, using both MangoDB with Mongoose and optional Redis caching.
+.env is used load load sensitive MangoDB credintials and cluster information. this keeps secrets out of the code and lets me switch between environment (like dev, staging, production) without code changes.

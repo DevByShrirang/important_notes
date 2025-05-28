@@ -1,0 +1,29 @@
+Dockerfile Explanation (Interview-Ready Version):
+    This Dockerfile is designed to containerize a Node.js application using best practices, with a focus on maintainability, performance, and security.
+    
+    🔹 FROM node:14
+    We’re using the official Node.js base image with version 14, which is a stable and widely-supported LTS version. It includes both Node and npm, which are required for installing and running our app.
+    
+    🔹 WORKDIR /app
+    This sets the working directory inside the container to /app. Any subsequent commands like COPY, RUN, or CMD will be executed from this directory. It helps keep our container file system clean and organized.
+    
+    🔹 COPY app.py /app and COPY . /app
+    These commands copy the application files into the container. app.py is explicitly copied first, followed by the rest of the files. Ideally, we should copy package.json separately before installing dependencies for better Docker caching — that's something I’d optimize in a real setup.
+    
+    🔹 RUN npm install
+    This installs all Node.js dependencies defined in the package.json file. This step is crucial for preparing the app to run inside the container.
+    
+    🔹 EXPOSE 3000
+    This tells Docker that the application will listen on port 3000 at runtime. While it doesn't actually publish the port, it’s useful metadata — especially for orchestration tools like Kubernetes or Docker Compose.
+    
+    🔹 RUN useradd -m appuser && chown -R appuser /app
+    This creates a non-root user named appuser and assigns ownership of the /app directory to that user. It's a best practice to avoid running containers as root for security reasons — especially in production.
+    
+    🔹 USER appuser
+    This switches the running user inside the container to appuser. It ensures that the app runs with restricted privileges, improving security and reducing risk.
+    
+    🔹 ENV NODE_ENV=production
+    This sets the environment variable NODE_ENV to production. It's a common practice in Node.js apps to enable production-specific configurations like better logging, performance optimizations, and disabling dev dependencies.
+    
+    🔹 CMD ["npm", "start"]
+    This defines the default command that will be executed when the container starts. It tells Docker to run npm start, which typically launches the application using the script defined in package.json.

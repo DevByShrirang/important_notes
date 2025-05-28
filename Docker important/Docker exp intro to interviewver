@@ -1,0 +1,4 @@
+I used Docker Compose to set up consistent local dev environments. Instead of installing Postgres, Redis, and other services
+ manually, I containerized them and wrote docker-compose.yml files that my whole team could use — making onboarding way faster.
+
+ “I integrated Docker into our CI/CD pipeline using Jenkins. On every code push or PR, Jenkins triggered a pipeline to build Docker images, run tests in containers, and push artifacts to Docker Hub or ECR. We used multi-stage builds to optimize image size and defined pipelines using Jenkinsfile. This setup helped us catch issues early and ensured consistent, reliable deployments.”

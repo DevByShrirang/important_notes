@@ -1,0 +1,65 @@
+Crashloopbackoff --
+
+Crashloopback is a pod status. that indiacates container is repetedly failing after is starts . kubernetes trying to run the container
+but it crashes and k8 backs off before trying again.
+Crashloopback caused by misconfiguration, app-level erros, missing dependancies , incorrect secret/configs or liveness probe failures.
+
+Common Root Causes
+Application Bug
+App exits immediately due to an exception or logic error.
+
+Misconfigured Environment Variables / ConfigMaps / Secrets
+
+Missing Dependencies
+Example: DB not reachable, config files not mounted.
+
+Liveness Probe Failures
+Kubernetes kills the pod thinking the app is unhealthy.
+
+Image Issues
+   Wrong command/entrypoint
+   App not starting in the container
+
+Insufficient Resources
+    CPU/memory limits causing OOMKill.
+
+    Below is the troubkeshooting process-
+   1) kubectl describe pod <pod-name>
+
+    look for event like back-off restarting failed container, liveness probe failure.
+
+    2) kubectl logs <pod-name> -c <container-name>
+    This gives insights why the container is crashing.
+
+    3) kubetctl get pod <pod-name> -o yaml
+    This command is very powerfull command gives full pod details with last state termination reason and exit code. i will check
+    whether env variables , configmaps , volumes , probes are misconfigured. if any issue found then we will modify the yaml file
+     and 
+    do the reapply.
+    kubectl apply -f <deployment.yaml>
+
+Explanation in interview ---
+    We had a pod that kept going into CrashLoopBackOff. I ran kubectl describe pod <name> and saw that the liveness probe was 
+    failing.
+     The probe was trying to hit an invalid path like /does-not-exist on an NGINX container. Since NGINX returns 404 for that
+      path, 
+     the kubelet kept restarting the pod.
+
+I fixed it by changing the liveness probe path to /, which returned 200. After applying the fix, the pod went into Running state 
+and the restarts stopped. This helped me understand how important correct health checks are for stable deployments.”
+
+***************************
+
+How to check logs for pod and containers in kubenrtes.
+__ 
+   kubectl logs [podname]  -- if the pod has single container
+   kubectl logs [pod name] -c [container name] - pod with multiple container
+   kubectl logs -l app=myapp -n mynamespace -- check logs for all pods in namespace
+   kubectl logs [pod-name] --since=1h --check log from specific timeframe.
+  
+
+
+
+
+
+

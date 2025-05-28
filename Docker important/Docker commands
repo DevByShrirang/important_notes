@@ -1,0 +1,28 @@
+docker rm <container_id_or_name> -To delete specific container
+docker rm -f <container_id_or_name> - Forcefully delete a running container
+docker container prune -f - To delete all stopped container.
+docker rmi <image_id_or_name> - To delete specific image.
+docker images prune -a -  Delete all unused images (dangling and untagged)
+To check running docker container -docker ps
+docker ps -a
+docker run myimage cat /etc/os-release 
+docker history <imagename>    --
+docker run myimage <username>   - Run docker container using user shrirang
+docker run myimage env   -- To check defined environment variable
+docker run mynewimage ls /code/   --- to see the contents of /code/ directroy. 
+docker inspect mynewimage --format='{{json .Config.ExposedPorts}}' --To check exposed ports inn docker images
+docker run --rm my-java-container -- --rm used for automatically delete the container when it stops
+docker run --name my-java-container -- To see the container in list
+docker run -d --name my-running-java-container my-java-container --To run the container in the detached mode , means it runs in the background.
+docker run -d --name my-running-java-container my-java-container tail -f /dev/null --is used when we want to keep container running indefinitely.
+docker exec -it my-running-java-container sh   --- Interact with docker container.
+
+docker run -itd -p 9005:9005 --name frontend_container frontend-image tail -f /dev/null
+
+
+--memory
+docker run -it --memory=100m web_app  --That sets hard limit on physical memory(RAM).-Container can use up to 100 MB of (RAM)
+
+--memory-swap
+docker run -it --memory=100m --memory-swap=200m web_app --100m-physical RAM + 100m swap memory =200mb total usable memory.
+If the container uses more than 200 MB IT GETS OOM killed.

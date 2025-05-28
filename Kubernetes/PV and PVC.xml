@@ -1,0 +1,10 @@
+persistent volume stuck in pending state
+persistent volume claim (pvc) fails to bind to a persistent volume (pv)
+
+
+When a PersistentVolumeClaim is stuck in Pending, it means Kubernetes couldn’t bind the claim to an appropriate PersistentVolume.
+ I typically start by running kubectl describe pvc to check for provisioning issues. If dynamic provisioning is expected, 
+ I verify the StorageClass exists and that the CSI driver is installed. If using static provisioning, 
+ I make sure there’s a PV with enough capacity, the right access mode, and matching selectors. One time,
+  the PVC failed because it requested ReadWriteMany but our NFS backend wasn't set up — once I fixed the backend,
+   the PVC bound correctly. I also check the CSI driver logs and IAM permissions if using EBS or other cloud volumes.

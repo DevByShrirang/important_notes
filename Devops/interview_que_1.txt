@@ -1,0 +1,305 @@
+1) How do you containerize your application using docker?
+1) --> first i will understand the application- whether its java , node js , python, check dependancies , configuration files, and build
+tools like maven or npm.
+2) write a dockerfile- i will create a dockerfile in root directory of project. for java app i will use multi state dockerfile.
+
+3) build the image:-
+docker build -t myapp:latest .
+
+4)run the container locally:-
+docker run -p 8080:8080 myapp:latest   -- this helps verify that the app is running.
+
+5) optimize the image: i try to reduce the image size using multistage docker build and using slim base image.
+6) push to registry:- once tested i tag and push the image to docker Hub or AWS ECR.
+7) use in CI CD- Finally i integrate the docker build and push to jenkins pipeline so that every code push triggers the pipeline 
+build the image and push it to registry automatically.
+
+
+2) what is kubernetes and how does it works?
+
+Kubernetes, often called K8s, is an open-source container orchestration platform. It helps automate the deployment, scaling, 
+and management of containerized applications — like Docker containers.
+
+Containers: First, you have your application packaged in a container (e.g., using Docker).
+Pods: In Kubernetes, containers run inside pods, which are the smallest deployable units.
+Cluster: A Kubernetes cluster consists of:
+Master Node (Control Plane) – manages the cluster
+Worker Nodes – run the actual applications (pods)
+
+Scheduler & Controller:
+The scheduler decides where pods should run (on which node).
+Controllers ensure the desired state matches the actual state (e.g., if a pod crashes, it will restart it).
+Kubelet:
+Each worker node has a kubelet, which communicates with the control plane and runs the pods.
+
+Services:
+Kubernetes uses services to expose your pods to other parts of the application or the internet.
+
+Configuration via YAML:
+
+You define the desired state of your applications using YAML files (like Deployment, Service, Ingress).
+
+Kubernetes reads these files and maintains that desired state automatically.
+
+
+
+3) What is a Helm Chart?
+Helm is a package manager for Kubernetes, and a Helm Chart is like a template or blueprint for deploying an application on a 
+Kubernetes cluster.
+
+It helps you package, configure, and deploy Kubernetes resources in a repeatable and maintainable way — 
+just like how apt or yum works for Linux packages, but for Kubernetes.
+
+How It Works:
+A Helm Chart contains:
+
+YAML templates for Kubernetes objects (e.g., Deployments, Services, ConfigMaps)
+values.yaml file for customization (like image names, replicas, ports)
+Chart metadata (name, version, etc.)
+Instead of writing multiple YAML files manually, you define them as templates in a chart and pass custom values to them.
+
+4) How do you monitor applications and infrastructure?
+ 
+ i have set up monitoring for both application and infrastructure using prometheus , grafana and cloudwatch
+
+ 🔹 Infrastructure Monitoring:
+for cloud monitoring i use cloudwatch. cloudwatch tracking metrics such as cpu usage, memory , disk, network traffic, health checks
+then i have created cloudwatch alarms for critical threshold and integrated with slack.
+for k8 cluster i used prometheus to scrape metrics from node, pod, services using exporters,
+Node exporter - for system level metrics
+kube state metrics - for cluster health
+cAadvisor -  for container level metrics
+
+🔹 Application Monitoring:
+for application level monitoring i used prometheus and grafana  setup'
+prometheus collects metrics exposed by application via /metrics endpoint
+grafana visualise it using custom dashboard
+we also configure alert rules in prometheus and sent alerts to slack.
+
+
+5 ) what is infratsrure as code?
+
+-- we create infrastructure using code. normally we created infra like EC2 with manual process. here with using visual studio 
+we write code that describe infrastructure which can be version controlled , reusable , and reviewed. 
+to make reusable infrastructure and faster deployment  there are several tools in market. aws and azure having their own tool. 
+aws is having cloud formation template which only limited for aws only
+azure is having arm template which only limited azure only.
+open source tool which i am using is terraform and supports multicloud.terraform supports muliple providers.
+
+6 ) how do you manage terraform state securely?
+terraform stores infrastructure state in a terraform.tfstate file, which represent the current state of cloud resources.
+by default this file stored locally which is not secure or scalable for team environement or production use.
+to manage it securely , we configure remote backend using amazon s3 with version enabled. this ensures that if the file
+is accidently deleted or corrupted , previous version can be recovered.
+additionally we use DynamoDB for state locking which prevents multiple team members from making simultaneous changes to the same
+state - avoiding race condition and conflicts.
+we also enforce encryption (SSE-S3 or SSE-KMS) and apply bucket policies to restrict access, ensuring the state file remains secure.
+
+
+what is ansible and how is it used in devops?
+
+Ansible is an open-source configuration management, provisioning, and automation tool. It allows DevOps engineers to 
+automate repetitive tasks like installing packages, managing users, configuring files, and deploying applications.
+
+It's agentless, meaning it doesn't require any software to be installed on the target nodes — it uses SSH to 
+communicate with Linux systems.
+in devops pipeline ansible is commonly used for ,
+configuration management:- ensuring all servers have consistent configuration- (installing nginx, setting up env variable)
+provisioning infrastructure- after creating infrastructure with terraform . ansible will be use to configure it.
+
+
+What are Blue-Green and Canary Deployments?
+Blue-Green Deployment is a release strategy used to reduce downtime and risk during application deployment. 
+It involves maintaining two identical production environments:
+
+Blue: The current live version.
+Green: The new version to be deployed.
+
+We deploy the new version to the Green environment and test it thoroughly. Once verified, we switch the traffic from 
+Blue to Green, making the new version live instantly. If something goes wrong, we can quickly roll back by redirecting 
+traffic back to Blue.
+
+Benefits:
+Near-zero downtime.
+Instant rollback in case of failure.
+Seamless user experience.
+
+Canary Deployment is a more gradual release strategy. Instead of routing 100% of traffic to the new version immediately, 
+ release it to a small subset of users (say 5-10%). If the system performs well (based on metrics like latency, error rate, etc.),
+  we gradually increase traffic until 100% is served by the new version.
+
+Benefits:
+Reduces risk by catching issues early.
+Allows performance and behavior monitoring in real user scenarios.
+Supports progressive rollouts.
+
+When to Use:
+
+Use Blue-Green when you want fast switchover with a clean rollback.
+Use Canary when you need to minimize risk in high-traffic applications by validating performance with real users incrementally.
+
+How I used Blue-Green and Canary Deployments in my project
+In my recent project, I worked on deploying a Java-based microservices application on AWS EKS using Jenkins and ArgoCD. We implemented both Blue-Green and Canary deployments depending on the criticality and nature of the service.
+
+🔵 Blue-Green Deployment (Used for critical services like Authentication & Payment):
+We used Kubernetes services with two versions of the deployment — blue (live) and green (new release).
+
+I first deployed the new version (green) to a separate Kubernetes deployment with the same configuration.
+We validated the green environment with smoke tests and health checks.
+Once validated, I switched the Kubernetes service selector from the blue pods to the green pods — effectively routing all traffic to the new version.
+In case of any issue, rollback was instant by pointing the service back to the blue pods.
+We used ArgoCD for GitOps-based deployments and kept both environments in version-controlled manifests.
+
+🟡 Canary Deployment (Used for non-critical services or high-traffic APIs):
+For canary rollouts, we used Argo Rollouts with Kubernetes.
+I configured the rollout strategy in the manifest to start with 10% traffic going to the new version.
+Based on Prometheus and Grafana metrics (error rate, latency, CPU/memory usage), traffic was gradually increased to 25%, 50%, and finally 100%.
+If any anomaly was detected, Argo Rollouts would automatically pause or roll back to the previous stable version.
+This approach helped us reduce risk and gain confidence before full deployment.
+
+⚙️ Tools Used:
+Jenkins (CI)
+ArgoCD and Argo Rollouts (CD)
+Kubernetes (EKS)
+Prometheus & Grafana (Monitoring)
+AWS ALB for Blue-Green traffic switching (in some cases)
+
+Que) how do you implement secret management in kubernetes?
+ in kubernetes password , api keys, certificates, token are called as secrets.
+ 1) Native k8s secrets:-
+ i use kubectl and yaml manifests to create k8s secrets.
+ these are base64-encoded and stored in etcd . this method is very easy to use but lacks strong encryption.
+ 
+ 2) using external secret management tool-
+ i used hashicorp vault for more secure, scalable, and auditable secret handling.
+
+hashicorp vault:-
+i use vault to securely store and dynamically generate secrets.
+then i use vault agent injector to inject secrets into pods at runtime avoiding hardcoding secrets in manifests.
+
+benifit- secrets are fetched at runtime, rotate automatically and access it tightly controlled with policies.
+
+Que) what is load balancer and how does it work in cloud?
+ As name suggested the main function is balancing traffic load coming from external world to inside application.
+ load balancer distribute incoming traffic into multiple server to balance traffic load and to avoid any server becomes bottleneck.
+ load balancer balancing incoming http/ https or tcp/udp traffic acorss backend servers (ec2 instance, containers , pods)
+ load balancer monitoring backend targets and routes traffic only to healthy ones.
+ if one instance fails traffic is automatically rerouted to healthy ones without downtime.
+
+ Que) How do you use Git in your devops workflow?
+ Git is version control system which is called source of truth for application code.
+ Git is used to manage application code and infrastructure as code (terraform script, ansible playbook, helm chart)
+ in CICD integration Git is integrated with securely with jenkins using token or webhooks.
+ on every changes in Git (push or merge) jenkins pipeline will trigger to update changes. jenkins keep maintain state with git
+ repository.
+ in kubernetes environemt we have used GitOps tools like ArgoCD to sync cluster state from a Git repository.
+ the Git repo becomes single source of truth for kubernetes manifest.
+
+
+Que) - what is the difference between monolith and microservice architecture?
+
+In a monolithic architecture, all components (frontend, backend, database access, etc.) are tightly coupled and part of the 
+same application. So, if one part like the backend fails, it can bring down the entire application, including the 
+frontend — because everything runs as a single unit.
+
+In a microservices architecture, the application is split into independent services — for example, user service, payment service, 
+order service, etc. If one microservice goes down (like payment service), the rest of the application can still function — 
+like viewing products or adding to cart — as long as those services are healthy. This is because services are isolated 
+from each other and communicate through APIs.
+Each microservice runs in multiple replicas (pods) behind a load balancer (like in Kubernetes).
+So if one replica fails, traffic is routed to healthy ones — ensuring no downtime.
+
+
+Que) difference between statefulset and deployment in kubernetes?
+
+both are used to manage pods.
+Depoyment -
+is used for stateless application. deployment creates pods with random name, can scale quickly and use ephemeral 
+storage.
+web server , backend stateless services. 
+Statefullsets- 
+are used for stateful application.
+stateful application need to retain data and maintain stable identity.
+each pod in statefulset has stable hostname
+A pod is having dedicated persistent volume that stays even if the pod restarts.
+pod restarts and shutdown takes place in ordered fashion.
+which is important for clustered system like database or zookeeper'
+i would use stateful to deploy mongodb chuster.
+
+Que ) centarized version control system and distributed version 
+Centralized VCS (CVCS):
+in centarized version control system there is single central repository where the entire codebase and history are stored.
+developers have to connect to this central server to perform operation like commit , update or revert.
+that means if the  central server goes down or is inaccessible , no one can commit or retrive history. which creates a bottleneck
+
+Distributed VCS (DVCS):-
+distributed vCS is having feature to allow developer clone the entire repository including the full history to thier local machine.
+so developer can commit, view logs , or create branches locally without needing constant connection to central server.
+once their chaages are ready they pushed to remote git repository.
+
+Que ) can you explain concept of cicd pipeline in details?
+
+"In my current project, we follow a complete CI/CD pipeline built using Jenkins integrated with GitHub, Docker, and Kubernetes. 
+The goal is to automate the entire lifecycle — from code commit to production deployment — while ensuring quality and 
+ at every stage.
+
+ continuous integration-CI-  i have worked on github in my recent project. whenever a developer creates new pull request or pushes 
+ code to a feature branch it triggers jenkins pipeline automatically via webhooks.
+
+ the CI pipeline includes -
+  code checkout
+  install dependancies
+  unit testing
+  static code analysis
+  docker image creation
+  docker image push to ECR
+
+  if any of these above step fails , the pipeline stops nd notifies the team via slack and eamil.
+
+  Continuous Delivery (CD):
+"Once the image is successfully built and pushed, the next stage handles deployment to a staging Kubernetes environment 
+using Helm charts."
+
+We apply:
+
+Helm for Kubernetes deployments
+
+Namespace separation for environments (dev/staging/prod)
+
+ConfigMaps/Secrets templated in Helm
+
+"Before deployment to production, we have a manual approval gate in Jenkins — this ensures a human reviews everything before 
+release."
+
+
+Que ) Can you discuss your experience with Devops tools like jenkins , docker , kubernetes , and tearraform?
+
+Que ) what are branching startegies in version control system?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
